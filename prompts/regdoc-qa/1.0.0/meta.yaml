@@ -1,0 +1,46 @@
+name: regdoc-qa
+version: "1.0.0"
+status: production
+model_alias: claude-sonnet-4-6
+description: >
+  Regulatory-document Q&A system prompt. Answers questions grounded in retrieved
+  document chunks with mandatory citation bracketing. Designed for the Atlas
+  doc-search + citation-verification pipeline.
+tags:
+  - rag
+  - regulatory
+  - citations
+params_schema:
+  type: object
+  required:
+    - chunks
+    - question
+  properties:
+    chunks:
+      type: array
+      description: Retrieved document chunks from doc_search tool.
+      items:
+        type: object
+        required:
+          - source_id
+          - page
+          - score
+          - text
+        properties:
+          source_id:
+            type: string
+          page:
+            type: integer
+          score:
+            type: number
+          text:
+            type: string
+    question:
+      type: string
+      description: The user question to answer.
+    output_language:
+      type: string
+      description: >
+        BCP-47 language tag for the response language (e.g. "en", "fr", "pt").
+        Defaults to English when omitted.
+      default: "en"

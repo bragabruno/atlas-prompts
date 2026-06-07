@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "atlas-prompts"
+version = "0.1.0"
+requires-python = "==3.12.*"
+dependencies = [
+    "pydantic==2.11.7",
+    "pyyaml==6.0.2",
+    "jinja2==3.1.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.3",
+    "ruff==0.11.13",
+    "pyright==1.1.391",
+]
+
+[project.scripts]
+lint-schemas = "atlas_prompts.lint:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["atlas_prompts*"]
+
+# ---------------------------------------------------------------------------
+# Ruff
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+# ---------------------------------------------------------------------------
+# Pyright
+# ---------------------------------------------------------------------------
+[tool.pyright]
+typeCheckingMode = "strict"
+pythonVersion = "3.12"
+include = ["atlas_prompts", "scripts", "tests"]
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
