@@ -11,6 +11,9 @@ dependencies = [
     "pyyaml==6.0.2",
     "jinja2==3.1.6",
     "numpy==2.4.6",
+    "sqlalchemy==2.0.50",
+    "alembic==1.18.4",
+    "psycopg[binary]==3.3.4",
 ]
 
 [project.optional-dependencies]
@@ -43,7 +46,7 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.12"
-include = ["atlas_prompts", "evals", "scripts", "tests", "gate.py"]
+include = ["atlas_prompts", "evals", "eval_runs", "scripts", "tests", "gate.py"]
 
 # ---------------------------------------------------------------------------
 # Pytest
