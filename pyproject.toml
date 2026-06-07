@@ -10,6 +10,7 @@ dependencies = [
     "pydantic==2.11.7",
     "pyyaml==6.0.2",
     "jinja2==3.1.6",
+    "numpy==2.4.6",
 ]
 
 [project.optional-dependencies]
@@ -42,7 +43,7 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.12"
-include = ["atlas_prompts", "scripts", "tests"]
+include = ["atlas_prompts", "evals", "scripts", "tests"]
 
 # ---------------------------------------------------------------------------
 # Pytest
