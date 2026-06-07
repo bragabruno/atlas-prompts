@@ -18,7 +18,7 @@ atlas-prompts/
 ├── agents/
 │   └── <name>.yaml             # agent definition (model, prompt refs, tools, params)
 ├── evals/
-│   ├── runner/                 # eval runner package (calls gateway, computes metrics)
+│   ├── runner/                 # eval runner: calls gateway, computes metrics via DeepEval (ADR-017)
 │   └── datasets/               # golden-set manifests (data lives in Azure Blob)
 ├── eval_runs/
 │   └── eval_results/           # SQLite/Postgres migrations + result tables (this repo owns the schema)
@@ -50,7 +50,7 @@ Triggered on any PR that touches `prompts/**` or `agents/**`.
 
 1. The Bitbucket pipeline runs `evals/runner/` against the golden set (manifests in `evals/datasets/`, data in Azure Blob).
 2. The runner calls the gateway via the generated Python client (source: gateway OpenAPI spec).
-3. Metrics computed per golden case:
+3. Metrics computed per golden case — metric implementations come from **DeepEval**; the gate/promotion logic stays custom (see [ADR-017](../atlas-docs/02-tech-stack-and-adrs.md)):
    - Exact match
    - Semantic match (embedding cosine similarity)
    - Citation validity %
