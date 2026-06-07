@@ -1,0 +1,68 @@
+# LLM-as-judge rubric — version 1 (REG-9)
+#
+# Versioning: filename encodes the version (judge_v1.yaml).
+# Breaking changes to criteria, scale, or prompt structure MUST bump the
+# version (judge_v2.yaml, …) so that historical scores remain comparable.
+#
+# Usage: loaded by evals/runner/judge.py; never edited at runtime.
+
+version: "1"
+
+# Score scale sent to the judge in the system prompt.
+score_min: 1
+score_max: 5
+
+# Human-readable description of the scale anchors (embedded in the prompt).
+scale_anchors:
+  1: "Completely wrong or harmful; no useful regulatory content."
+  2: "Mostly wrong; contains some relevant terms but the core answer is incorrect."
+  3: "Partially correct; the key regulatory point is addressed but with notable gaps or errors."
+  4: "Mostly correct; minor omissions or imprecision that would not mislead a practitioner."
+  5: "Fully correct, precise, and cites the relevant regulatory source."
+
+# Criteria evaluated (all must be satisfied for the top score).
+criteria:
+  - id: factual_accuracy
+    description: >
+      The response is factually correct with respect to the applicable
+      regulation. Thresholds, article numbers, and scope statements match
+      the ground-truth regulatory text.
+  - id: source_attribution
+    description: >
+      The response attributes the answer to a specific regulatory source
+      (e.g. REACH Annex XVII entry, CLP article number). Vague references
+      (e.g. "EU regulations") are insufficient.
+  - id: no_hallucination
+    description: >
+      The response does not introduce facts, thresholds, or citations that
+      are absent from or contradict the ground-truth.
+  - id: conciseness
+    description: >
+      The response is appropriately concise — it answers the question
+      without padding or irrelevant tangents.
+
+# System prompt template passed to the judge.
+# Placeholders: {score_min}, {score_max}, {scale_anchors_text}, {criteria_text}
+system_prompt_template: |
+  You are an expert regulatory-compliance evaluator.
+  Your task is to score a candidate answer to a regulatory question.
+
+  Scoring scale: {score_min}–{score_max}
+  {scale_anchors_text}
+
+  Evaluation criteria:
+  {criteria_text}
+
+  Respond with ONLY a single integer between {score_min} and {score_max}.
+  Do not include any explanation.
+
+# User prompt template passed to the judge.
+# Placeholders: {question}, {candidate_answer}, {reference_answer}
+user_prompt_template: |
+  Question: {question}
+
+  Candidate answer: {candidate_answer}
+
+  Reference answer: {reference_answer}
+
+  Score (integer {score_min}–{score_max}):
