@@ -43,7 +43,7 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.12"
-include = ["atlas_prompts", "evals", "scripts", "tests"]
+include = ["atlas_prompts", "evals", "scripts", "tests", "gate.py"]
 
 # ---------------------------------------------------------------------------
 # Pytest
