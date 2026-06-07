@@ -76,6 +76,9 @@ def default_gate_config() -> GateConfig:
     ----------------------------------------
     - latency_ms    mean value: advisory regression flag if candidate > baseline.
     - cost_usd      mean value: advisory regression flag if candidate > baseline.
+    - llm_judge     mean normalised score [0, 1]: advisory; never blocks.
+                    Only present in runs where a judge model is configured
+                    (REG-9).  The gate skips it gracefully when absent.
     """
     return GateConfig(
         metrics=[
@@ -108,6 +111,13 @@ def default_gate_config() -> GateConfig:
                 blocking=False,
                 threshold=0.0,
                 higher_is_better=False,
+            ),
+            # REG-9 — LLM-as-judge: always advisory, never blocks.
+            MetricSpec(
+                metric="llm_judge",
+                blocking=False,
+                threshold=0.05,
+                higher_is_better=True,
             ),
         ]
     )

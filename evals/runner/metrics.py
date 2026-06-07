@@ -67,6 +67,46 @@ class CitationValidityResult:
 
 
 @dataclass(frozen=True, slots=True)
+class JudgeScoreResult:
+    """Result of an LLM-as-judge evaluation (REG-9).
+
+    The score is the mean of ``n_samples`` independent judge calls, which
+    bounds per-sample flakiness.  The metric is always *advisory* — the
+    ``passed`` flag merely records whether the mean score reached
+    ``pass_threshold``; the gate never blocks on it.
+    """
+
+    score: float
+    """Mean judge score, normalised to [0, 1] from the rubric scale."""
+
+    raw_scores: list[float]
+    """Individual scores from each sample call (before normalisation)."""
+
+    rubric_version: str
+    """Rubric file version used for this evaluation."""
+
+    judge_model: str
+    """Model alias used as the judge."""
+
+    n_samples: int
+    """Number of independent judge calls made."""
+
+    margin: float
+    """Allowed variance: max(raw_scores) − min(raw_scores) must be ≤ margin.
+    When the spread exceeds the margin the result is still valid but the
+    caller may log a variance warning."""
+
+    spread_within_margin: bool
+    """True when max(raw_scores) − min(raw_scores) ≤ margin."""
+
+    passed: bool
+    """True when the normalised mean score ≥ pass_threshold."""
+
+    pass_threshold: float
+    """Minimum normalised score required to pass (e.g. 0.6)."""
+
+
+@dataclass(frozen=True, slots=True)
 class DeltaResult:
     """Absolute delta of a scalar metric vs. a baseline value."""
 

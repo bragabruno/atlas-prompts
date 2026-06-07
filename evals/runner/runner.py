@@ -44,6 +44,7 @@ from evals.runner.gateway_client import (
     EmbeddingRequest,
     GatewayClient,
 )
+from evals.runner.judge import LlmJudge
 from evals.runner.metrics import (
     citation_validity,
     cost_delta,
@@ -129,6 +130,24 @@ class RunConfig:
     )
     extra_messages: list[dict[str, Any]] = field(default_factory=list)
 
+    # ---- LLM-as-judge (REG-9) — all optional; omit to skip judge scoring ----
+    judge_model: str | None = None
+    """Model alias for the judge.  Set to enable LLM-as-judge scoring.
+    Must be None to disable (no judge calls made, no metric row emitted)."""
+
+    judge_rubric_version: str = "1"
+    """Rubric version string.  Matches the filename ``judge_v<N>.yaml``."""
+
+    judge_n_samples: int = 3
+    """Number of independent judge calls per case (bounds per-sample flakiness)."""
+
+    judge_margin: float = 1.0
+    """Allowed score spread (max − min) across samples before a variance
+    warning is logged.  Does not reject results."""
+
+    judge_pass_threshold: float = 0.6
+    """Minimum normalised score (0–1) for the advisory passed flag."""
+
 
 # ---------------------------------------------------------------------------
 # Runner
@@ -149,6 +168,9 @@ class EvalRunner:
     def __init__(self, client: GatewayClient, store: ResultsStore) -> None:
         self._client = client
         self._store = store
+        # _judge is built lazily per run from RunConfig.judge_model so that the
+        # runner instance itself stays stateless w.r.t. judge configuration.
+        self._judge: LlmJudge | None = None
 
     def run(self, config: RunConfig) -> EvalRunSummary:
         """Execute one complete eval run and return the aggregated summary.
@@ -165,6 +187,19 @@ class EvalRunner:
         """
         run_id = new_run_id()
         created_at = now_utc_iso()
+
+        # Build judge once per run (avoids reloading the rubric per case).
+        if config.judge_model is not None:
+            self._judge = LlmJudge(
+                client=self._client,
+                judge_model=config.judge_model,
+                rubric_version=config.judge_rubric_version,
+                n_samples=config.judge_n_samples,
+                margin=config.judge_margin,
+                pass_threshold=config.judge_pass_threshold,
+            )
+        else:
+            self._judge = None
 
         records: list[GoldenRecord] = load_dataset(
             config.dataset_name,
@@ -298,6 +333,23 @@ class EvalRunner:
                 cd.passed,
             )
         )
+
+        # ---- 6. LLM-as-judge (REG-9) — advisory; only when judge is enabled --
+        if self._judge is not None and record.expected_semantic is not None:
+            judge_result = self._judge.score_sample(
+                question=record.input,
+                candidate_answer=candidate_text,
+                reference_answer=record.expected_semantic,
+            )
+            if not judge_result.spread_within_margin:
+                logger.warning(
+                    "judge_variance run_id=%s case=%d spread=%.1f margin=%.1f",
+                    run_id,
+                    case_idx,
+                    max(judge_result.raw_scores) - min(judge_result.raw_scores),
+                    judge_result.margin,
+                )
+            results.append(_base("llm_judge", judge_result.score, None, judge_result.passed))
 
         return results
 

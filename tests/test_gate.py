@@ -549,9 +549,10 @@ class TestGateMainCli:
 
 
 class TestDefaultGateConfig:
-    def test_default_config_has_five_metrics(self) -> None:
+    def test_default_config_has_six_metrics(self) -> None:
+        # REG-9 added llm_judge as the 6th metric (advisory).
         cfg = default_gate_config()
-        assert len(cfg.metrics) == 5
+        assert len(cfg.metrics) == 6
 
     def test_quality_metrics_are_blocking(self) -> None:
         cfg = default_gate_config()
