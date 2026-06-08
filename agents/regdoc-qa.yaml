@@ -1,6 +1,6 @@
 agent_name: regdoc-qa
 agent_version: "1.0.0"
-system_prompt_ref: prompts/regdoc-qa/1.0.0/template.jinja
+system_prompt_ref: prompts/regdoc-qa/1.0.0/system.txt
 model_alias: claude-sonnet-4-6
 tool_whitelist:
   - doc_search

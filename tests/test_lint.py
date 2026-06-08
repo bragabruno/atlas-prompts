@@ -7,6 +7,7 @@ from pathlib import Path
 import yaml
 
 from atlas_prompts.lint import lint_agent, lint_all, lint_meta
+from atlas_prompts.schemas import AgentSpec
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -182,3 +183,56 @@ def test_lint_all_catches_bad_meta(tmp_path: Path) -> None:
 
     errors = lint_all(tmp_path)
     assert errors, "Expected lint_all to surface missing-status error"
+
+
+# ---------------------------------------------------------------------------
+# AGT-11: RegDoc agent definition — load, validate, tool_whitelist
+# ---------------------------------------------------------------------------
+
+_AGENT_YAML = REPO_ROOT / "agents" / "regdoc-qa.yaml"
+_SYSTEM_PROMPT = REPO_ROOT / "prompts" / "regdoc-qa" / "1.0.0" / "system.txt"
+
+
+def test_agt11_agent_def_loads_and_validates() -> None:
+    """AGT-11: regdoc-qa.yaml must load and validate against AgentSpec schema."""
+    assert _AGENT_YAML.is_file(), f"Agent definition missing: {_AGENT_YAML}"
+    raw = yaml.safe_load(_AGENT_YAML.read_text(encoding="utf-8"))
+    spec = AgentSpec.model_validate(raw)
+    assert spec.agent_name == "regdoc-qa"
+    assert spec.agent_version == "1.0.0"
+
+
+def test_agt11_tool_whitelist() -> None:
+    """AGT-11: tool_whitelist must be exactly [doc_search, verify_citation]."""
+    raw = yaml.safe_load(_AGENT_YAML.read_text(encoding="utf-8"))
+    spec = AgentSpec.model_validate(raw)
+    assert spec.tool_whitelist == [
+        "doc_search",
+        "verify_citation",
+    ], f"Unexpected tool_whitelist: {spec.tool_whitelist}"
+
+
+def test_agt11_hard_caps_positive() -> None:
+    """AGT-11: all hard caps (max_iterations, token_budget, timeout_s) must be > 0."""
+    raw = yaml.safe_load(_AGENT_YAML.read_text(encoding="utf-8"))
+    spec = AgentSpec.model_validate(raw)
+    assert spec.max_iterations > 0, "max_iterations must be > 0"
+    assert spec.token_budget > 0, "token_budget must be > 0"
+    assert spec.timeout_s > 0, "timeout_s must be > 0"
+
+
+def test_agt11_system_prompt_file_exists() -> None:
+    """AGT-11: system_prompt_ref must point to an existing system prompt file."""
+    assert _SYSTEM_PROMPT.is_file(), f"System prompt file missing: {_SYSTEM_PROMPT}"
+    raw = yaml.safe_load(_AGENT_YAML.read_text(encoding="utf-8"))
+    spec = AgentSpec.model_validate(raw)
+    ref_path = REPO_ROOT / spec.system_prompt_ref
+    assert ref_path.is_file(), f"system_prompt_ref '{spec.system_prompt_ref}' not on disk"
+
+
+def test_agt11_system_prompt_contains_citation_instructions() -> None:
+    """AGT-11: system prompt must instruct grounded, citation-bearing answers."""
+    content = _SYSTEM_PROMPT.read_text(encoding="utf-8")
+    assert "doc_search" in content, "System prompt must reference doc_search tool"
+    assert "verify_citation" in content, "System prompt must reference verify_citation tool"
+    assert "[" in content and ":" in content, "System prompt must show citation bracket format"
