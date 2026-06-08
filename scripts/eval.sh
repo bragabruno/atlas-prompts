@@ -27,13 +27,13 @@ require_cmd python "pip install -e .[dev]"
 
 if [[ "${GATE_NO_BASELINE:-0}" == "1" ]]; then
   run "eval quality gate (Gate 2, first run)" \
-    python gate.py "${CANDIDATE_RUN_ID}" --no-baseline
+    python -m atlas_prompts.gate "${CANDIDATE_RUN_ID}" --no-baseline
 else
   if [[ -z "${BASELINE_EVAL_RUN_ID:-}" ]]; then
     log_error "BASELINE_EVAL_RUN_ID unset — set it, or pass GATE_NO_BASELINE=1 for first-run mode"
     exit 2
   fi
   run "eval quality gate (Gate 2)" \
-    python gate.py "${CANDIDATE_RUN_ID}" "${BASELINE_EVAL_RUN_ID}"
+    python -m atlas_prompts.gate "${CANDIDATE_RUN_ID}" "${BASELINE_EVAL_RUN_ID}"
 fi
 log_ok "eval quality gate passed"

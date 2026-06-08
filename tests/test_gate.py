@@ -15,10 +15,10 @@ from pathlib import Path
 
 import pytest
 
-from evals.gate.comparator import MetricDiff, run_gate
-from evals.gate.gate_config import GateConfig, MetricSpec, default_gate_config
-from evals.runner.results_store import JsonlResultsStore, MetricResult, new_run_id
-from gate import main as gate_main
+from atlas_prompts.evals.gate.comparator import MetricDiff, run_gate
+from atlas_prompts.evals.gate.gate_config import GateConfig, MetricSpec, default_gate_config
+from atlas_prompts.evals.runner.results_store import JsonlResultsStore, MetricResult, new_run_id
+from atlas_prompts.gate import main as gate_main
 
 # ---------------------------------------------------------------------------
 # Fixtures / helpers

@@ -16,5 +16,5 @@ if ! python -c "import pytest_cov" >/dev/null 2>&1; then
   exit 0
 fi
 run "pytest --cov (fail-under ${cov_min}%)" \
-  pytest -q --cov=atlas_prompts --cov=evals --cov-report=term-missing "--cov-fail-under=${cov_min}"
+  pytest -q --cov=atlas_prompts --cov-report=term-missing "--cov-fail-under=${cov_min}"
 log_ok "coverage gate passed"

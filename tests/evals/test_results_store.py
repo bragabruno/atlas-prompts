@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from evals.runner.results_store import (
+from atlas_prompts.evals.runner.results_store import (
     EvalRunSummary,
     JsonlResultsStore,
     MetricResult,

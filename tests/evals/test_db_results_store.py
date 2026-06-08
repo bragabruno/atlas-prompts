@@ -27,10 +27,10 @@ from sqlalchemy import Engine, create_engine, event, inspect, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from eval_runs.db.base import Base
-from eval_runs.db.tables import EvalResult, EvalRun
-from evals.runner.db_results_store import DbResultsStore
-from evals.runner.results_store import MetricResult, ResultsStore, new_run_id
+from atlas_prompts.eval_runs.db.base import Base
+from atlas_prompts.eval_runs.db.tables import EvalResult, EvalRun
+from atlas_prompts.evals.runner.db_results_store import DbResultsStore
+from atlas_prompts.evals.runner.results_store import MetricResult, ResultsStore, new_run_id
 
 # ---------------------------------------------------------------------------
 # Fixtures

@@ -38,9 +38,9 @@ import argparse
 import sys
 from pathlib import Path
 
-from evals.gate.comparator import run_gate
-from evals.gate.gate_config import default_gate_config
-from evals.runner.results_store import JsonlResultsStore
+from atlas_prompts.evals.gate.comparator import run_gate
+from atlas_prompts.evals.gate.gate_config import default_gate_config
+from atlas_prompts.evals.runner.results_store import JsonlResultsStore
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:

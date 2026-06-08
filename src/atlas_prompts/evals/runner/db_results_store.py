@@ -40,8 +40,8 @@ from decimal import Decimal
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
-from eval_runs.db.tables import EvalResult, EvalRun
-from evals.runner.results_store import MetricResult
+from atlas_prompts.eval_runs.db.tables import EvalResult, EvalRun
+from atlas_prompts.evals.runner.results_store import MetricResult
 
 
 class DbResultsStore:

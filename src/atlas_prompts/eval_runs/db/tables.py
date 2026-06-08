@@ -27,7 +27,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from eval_runs.db.base import Base
+from atlas_prompts.eval_runs.db.base import Base
 
 
 class EvalRun(Base):

@@ -17,8 +17,8 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from eval_runs.db import tables  # noqa: F401  (registers models on Base.metadata)
-from eval_runs.db.base import Base
+from atlas_prompts.eval_runs.db import tables  # noqa: F401  (registers models on Base.metadata)
+from atlas_prompts.eval_runs.db.base import Base
 
 config = context.config
 

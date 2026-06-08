@@ -8,8 +8,8 @@ tells the caller whether to exit non-zero.
 
 Typical usage
 -------------
-    from evals.gate.comparator import run_gate
-    from evals.gate.gate_config import default_gate_config
+    from atlas_prompts.evals.gate.comparator import run_gate
+    from atlas_prompts.evals.gate.gate_config import default_gate_config
 
     result = run_gate(
         candidate_results=candidate_rows,
@@ -24,8 +24,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from evals.gate.gate_config import GateConfig, MetricSpec, default_gate_config
-from evals.runner.results_store import MetricResult  # noqa: TC001
+from atlas_prompts.evals.gate.gate_config import GateConfig, MetricSpec, default_gate_config
+from atlas_prompts.evals.runner.results_store import MetricResult  # noqa: TC001
 
 # ---------------------------------------------------------------------------
 # Result types

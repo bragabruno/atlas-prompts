@@ -23,13 +23,13 @@ from pathlib import Path
 
 import pytest
 
-from evals.gate.comparator import run_gate
-from evals.gate.gate_config import GateConfig, MetricSpec
-from evals.runner.gateway_client import FakeGatewayClient, default_embedding_fn
-from evals.runner.judge import LlmJudge, load_rubric, parse_score
-from evals.runner.metrics import JudgeScoreResult
-from evals.runner.results_store import JsonlResultsStore, MetricResult, new_run_id
-from evals.runner.runner import EvalRunner, RunConfig
+from atlas_prompts.evals.gate.comparator import run_gate
+from atlas_prompts.evals.gate.gate_config import GateConfig, MetricSpec
+from atlas_prompts.evals.runner.gateway_client import FakeGatewayClient, default_embedding_fn
+from atlas_prompts.evals.runner.judge import LlmJudge, load_rubric, parse_score
+from atlas_prompts.evals.runner.metrics import JudgeScoreResult
+from atlas_prompts.evals.runner.results_store import JsonlResultsStore, MetricResult, new_run_id
+from atlas_prompts.evals.runner.runner import EvalRunner, RunConfig
 
 # ---------------------------------------------------------------------------
 # Constants / helpers
@@ -282,7 +282,7 @@ class TestMultiSampleMargin:
 class TestLlmJudgeAdvisory:
     def test_llm_judge_advisory_in_default_gate_config(self) -> None:
         """llm_judge MetricSpec must be blocking=False in default_gate_config."""
-        from evals.gate.gate_config import default_gate_config
+        from atlas_prompts.evals.gate.gate_config import default_gate_config
 
         cfg = default_gate_config()
         judge_specs = [s for s in cfg.metrics if s.metric == "llm_judge"]
@@ -351,7 +351,7 @@ class TestLlmJudgeAdvisory:
 
     def test_gate_default_config_has_six_metrics(self) -> None:
         """default_gate_config must include llm_judge as the 6th metric."""
-        from evals.gate.gate_config import default_gate_config
+        from atlas_prompts.evals.gate.gate_config import default_gate_config
 
         cfg = default_gate_config()
         assert len(cfg.metrics) == 6

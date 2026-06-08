@@ -9,7 +9,7 @@ import math
 import pytest
 
 from atlas_prompts.datasets import CitationRequirement
-from evals.runner.metrics import (
+from atlas_prompts.evals.runner.metrics import (
     SemanticMatchResult,
     citation_validity,
     cost_delta,
