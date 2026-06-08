@@ -6,7 +6,7 @@ local results store.
 
 Public entry point
 ------------------
-    from evals.runner.runner import EvalRunner, RunConfig
+    from atlas_prompts.evals.runner.runner import EvalRunner, RunConfig
 
     runner = EvalRunner(client=gateway_client, store=JsonlResultsStore())
     summary = runner.run(RunConfig(...))
@@ -37,22 +37,22 @@ from typing import Any
 
 from atlas_prompts.dataset_loader import DatasetSource, load_dataset
 from atlas_prompts.datasets import GoldenRecord
-from evals.runner.gateway_client import (
+from atlas_prompts.evals.runner.gateway_client import (
     ChatMessage,
     CompletionRequest,
     CompletionResponse,
     EmbeddingRequest,
     GatewayClient,
 )
-from evals.runner.judge import LlmJudge
-from evals.runner.metrics import (
+from atlas_prompts.evals.runner.judge import LlmJudge
+from atlas_prompts.evals.runner.metrics import (
     citation_validity,
     cost_delta,
     exact_match,
     latency_delta,
     semantic_match,
 )
-from evals.runner.results_store import (
+from atlas_prompts.evals.runner.results_store import (
     EvalRunSummary,
     MetricResult,
     ResultsStore,

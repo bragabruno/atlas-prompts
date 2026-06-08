@@ -8,7 +8,7 @@ import math
 
 import pytest
 
-from evals.runner.gateway_client import (
+from atlas_prompts.evals.runner.gateway_client import (
     ChatMessage,
     CompletionRequest,
     CompletionResponse,

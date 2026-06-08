@@ -5,12 +5,12 @@ both live HTTP calls and test fakes.
 
 Usage (production)
 ------------------
-    from evals.runner.gateway_client import HttpGatewayClient
+    from atlas_prompts.evals.runner.gateway_client import HttpGatewayClient
     client = HttpGatewayClient(base_url="http://gateway:8000", api_key="...")
 
 Usage (offline / testing)
 --------------------------
-    from evals.runner.gateway_client import FakeGatewayClient
+    from atlas_prompts.evals.runner.gateway_client import FakeGatewayClient
     client = FakeGatewayClient(
         completion_map={"What is X?": "X is Y."},
         embedding_fn=lambda text: [1.0, 0.0],
