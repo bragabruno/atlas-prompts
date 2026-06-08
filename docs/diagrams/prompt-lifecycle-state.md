@@ -9,7 +9,7 @@ stateDiagram-v2
     draft --> candidate : manual promotion
     candidate --> draft : reverted
 
-    candidate --> production : eval gate PASS\n(gate.py exits 0)
+    candidate --> production : eval gate PASS\n(atlas_prompts.gate exits 0)
     candidate --> candidate : eval gate FAIL\n(blocked, iterate)
 
     production --> retired : manually retired
