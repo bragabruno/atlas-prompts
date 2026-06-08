@@ -93,6 +93,9 @@ pyright
 pytest
 ```
 
+Generating Alembic migrations requires `trunk` on your `PATH`: `alembic.ini`'s
+`[post_write_hooks]` runs `trunk check --fix` on each newly generated migration.
+
 No secrets in this repo. All credentials (Azure Blob SAS, gateway API key, MLflow tracking URI) are injected via environment variables or CI secrets. Use `.env` locally (`.env` is gitignored).
 
 ## Related
