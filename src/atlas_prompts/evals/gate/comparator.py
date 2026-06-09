@@ -23,6 +23,7 @@ Typical usage
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from atlas_prompts.evals.gate.gate_config import GateConfig, MetricSpec, default_gate_config
 from atlas_prompts.evals.runner.results_store import MetricResult  # noqa: TC001
@@ -56,6 +57,37 @@ class MetricDiff:
             return "FAIL" if self.blocking else "WARN"
         return "PASS"
 
+    def to_dict(self) -> dict[str, Any]:
+        """Serialise to a plain JSON-safe dict (status is derived, included for readers)."""
+        return {
+            "metric": self.metric,
+            "candidate_mean": self.candidate_mean,
+            "baseline_mean": self.baseline_mean,
+            "delta": self.delta,
+            "regression": self.regression,
+            "blocking": self.blocking,
+            "threshold": self.threshold,
+            "higher_is_better": self.higher_is_better,
+            "status": self.status,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> MetricDiff:
+        """Reconstruct a ``MetricDiff`` from :meth:`to_dict` output.
+
+        The derived ``status`` key is ignored — it is recomputed from the fields.
+        """
+        return cls(
+            metric=data["metric"],
+            candidate_mean=data["candidate_mean"],
+            baseline_mean=data["baseline_mean"],
+            delta=data["delta"],
+            regression=data["regression"],
+            blocking=data["blocking"],
+            threshold=data["threshold"],
+            higher_is_better=data["higher_is_better"],
+        )
+
 
 @dataclass(frozen=True)
 class GateResult:
@@ -77,6 +109,28 @@ class GateResult:
     @property
     def advisory_warnings(self) -> list[MetricDiff]:
         return [d for d in self.diffs if d.regression and not d.blocking]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Serialise the full gate result to a JSON-safe dict.
+
+        ``passed`` is derived but included so downstream consumers (the PR-comment
+        poster) need not re-derive it.
+        """
+        return {
+            "candidate_run_id": self.candidate_run_id,
+            "baseline_run_id": self.baseline_run_id,
+            "passed": self.passed,
+            "diffs": [d.to_dict() for d in self.diffs],
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> GateResult:
+        """Reconstruct a ``GateResult`` from :meth:`to_dict` output."""
+        return cls(
+            diffs=[MetricDiff.from_dict(d) for d in data["diffs"]],
+            candidate_run_id=data["candidate_run_id"],
+            baseline_run_id=data["baseline_run_id"],
+        )
 
     def format_table(self) -> str:
         """Return a human-readable metric-diff table."""
