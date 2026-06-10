@@ -1,0 +1,18 @@
+# Build-context hygiene — keep the image lean and reproducible.
+.git/
+.venv/
+.trunk/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+*.egg-info/
+tests/
+docs/
+*.md
+!README.md
+eval_runs/eval_results/
+src/
