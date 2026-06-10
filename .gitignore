@@ -11,3 +11,6 @@ build/
 *.egg-info/
 .coverage
 .DS_Store
+eval_runs/eval_results/
+src/
+.trunk/
