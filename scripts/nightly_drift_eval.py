@@ -94,6 +94,22 @@ def main() -> int:
     print(report.format_summary())
 
     if report.has_alerts:
+        from evals.drift.alerter import WebhookAlerter
+
+        alerter = WebhookAlerter(os.environ.get("ATLAS_DRIFT_WEBHOOK_URL"))
+        alerter.fire(
+            summary=report.format_summary(),
+            evaluated_at=report.evaluated_at,
+            versions=[
+                {
+                    "prompt_version": v.prompt_version,
+                    "n_samples": v.n_samples,
+                    "alerted": v.alerted,
+                    "run_id": v.run_id,
+                }
+                for v in report.versions
+            ],
+        )
         log.warning("drift_alerts_fired — check MLflow dashboard")
         return 1
 
