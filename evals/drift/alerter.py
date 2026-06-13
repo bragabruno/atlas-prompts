@@ -20,7 +20,7 @@ from __future__ import annotations
 import json
 import logging
 import urllib.request
-from dataclasses import asdict
+from collections.abc import Mapping, Sequence
 
 log = logging.getLogger(__name__)
 
@@ -41,7 +41,9 @@ class WebhookAlerter:
         self._url = url
         self._timeout = timeout_s
 
-    def fire(self, summary: str, evaluated_at: str, versions: list[dict]) -> None:  # type: ignore[type-arg]
+    def fire(
+        self, summary: str, evaluated_at: str, versions: Sequence[Mapping[str, object]]
+    ) -> None:
         payload = {
             "text": f"Atlas drift alert — {evaluated_at}",
             "summary": summary,

@@ -23,9 +23,16 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from evals.drift.shadow_source import ShadowRecord
+
+
+def _deserialize(raw: bytes) -> Any:
+    """Decode a Kafka message value (kafka-python is untyped → Any boundary)."""
+    return json.loads(raw.decode("utf-8"))
+
 
 log = logging.getLogger(__name__)
 
@@ -78,18 +85,19 @@ class KafkaShadowSource:
                 "Install aiokafka or kafka-python-ng."
             ) from exc
 
-        consumer = KafkaConsumer(
+        # kafka-python ships no type stubs, so the consumer is an untyped
+        # boundary — pin it to Any rather than letting Unknown cascade.
+        consumer: Any = KafkaConsumer(
             self._topic,
             bootstrap_servers=self._bootstrap,
             group_id=self._group_id,
             auto_offset_reset="earliest",
             enable_auto_commit=True,
-            value_deserializer=lambda b: json.loads(b.decode("utf-8")),
+            value_deserializer=_deserialize,
             consumer_timeout_ms=self._poll_timeout_ms,
         )
 
         count = 0
-        empty_polls = 0
 
         try:
             for message in consumer:
@@ -101,7 +109,6 @@ class KafkaShadowSource:
 
                 yield record
                 count += 1
-                empty_polls = 0
 
                 if limit is not None and count >= limit:
                     break

@@ -42,6 +42,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 def _build_source(args: argparse.Namespace):  # type: ignore[return]
     if args.source:
         from evals.drift.shadow_source import JsonlShadowSource
+
         path = Path(args.source)
         if not path.is_file():
             log.error("source file not found: %s", path)
@@ -55,6 +56,7 @@ def _build_source(args: argparse.Namespace):  # type: ignore[return]
         sys.exit(1)
 
     from evals.drift.kafka_shadow_source import KafkaShadowSource
+
     return KafkaShadowSource(bootstrap_servers=bootstrap)
 
 

@@ -64,9 +64,7 @@ class DriftReport:
     """Aggregated drift report across all prompt versions evaluated."""
 
     versions: list[VersionDrift] = field(default_factory=list)
-    evaluated_at: str = field(
-        default_factory=lambda: datetime.now(tz=UTC).isoformat()
-    )
+    evaluated_at: str = field(default_factory=lambda: datetime.now(tz=UTC).isoformat())
 
     @property
     def has_alerts(self) -> bool:
@@ -102,20 +100,29 @@ def _shadow_to_metric_results(
     """Convert shadow records to MetricResult rows for latency and cost."""
     results: list[MetricResult] = []
     for idx, rec in enumerate(records):
-        common = {
-            "run_id": run_id,
-            "prompt_version": rec.prompt_version,
-            "dataset_name": "shadow",
-            "dataset_version": "live",
-            "triggered_by": "drift-eval",
-            "created_at": created_at,
-            "case_index": idx,
-            "input_snippet": rec.input[:120],
-            "baseline_value": None,
-            "passed": True,
-        }
-        results.append(MetricResult(**common, metric="latency_ms", value=rec.latency_ms))
-        results.append(MetricResult(**common, metric="cost_usd", value=rec.cost_usd))
+
+        def _metric(
+            metric: str, value: float, rec: ShadowRecord = rec, idx: int = idx
+        ) -> MetricResult:
+            # Explicit fields (vs an untyped `**common` dict spread, which made
+            # every field read as str|int|bool|None and failed strict typing).
+            return MetricResult(
+                run_id=run_id,
+                prompt_version=rec.prompt_version,
+                dataset_name="shadow",
+                dataset_version="live",
+                triggered_by="drift-eval",
+                created_at=created_at,
+                case_index=idx,
+                input_snippet=rec.input[:120],
+                baseline_value=None,
+                passed=True,
+                metric=metric,
+                value=value,
+            )
+
+        results.append(_metric("latency_ms", rec.latency_ms))
+        results.append(_metric("cost_usd", rec.cost_usd))
     return results
 
 
@@ -207,13 +214,15 @@ def run_drift_eval(
                         pct_change,
                     )
 
-        report.versions.append(VersionDrift(
-            prompt_version=version,
-            run_id=run_id,
-            n_samples=len(records),
-            gate_result=gate_result,
-            alerted=alerted,
-        ))
+        report.versions.append(
+            VersionDrift(
+                prompt_version=version,
+                run_id=run_id,
+                n_samples=len(records),
+                gate_result=gate_result,
+                alerted=alerted,
+            )
+        )
         log.info(
             "drift_version_done version=%s n=%d passed=%s alerted=%s",
             version,

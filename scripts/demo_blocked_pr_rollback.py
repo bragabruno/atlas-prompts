@@ -39,10 +39,10 @@ from __future__ import annotations
 import sys
 from dataclasses import dataclass
 
-
 # ---------------------------------------------------------------------------
 # Minimal stubs so the demo runs without a live gateway or database.
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class _FakeResult:
@@ -70,7 +70,7 @@ def _make_results(prompt_version: str, scenario: str) -> list[_FakeResult]:
     }
     if scenario == "regressed":
         values = {
-            "exact_match": 0.250,   # big regression
+            "exact_match": 0.250,  # big regression
             "semantic_match": 0.583,
             "citation_validity": 0.750,
             "latency_ms": 210.0,
@@ -91,17 +91,22 @@ def _make_results(prompt_version: str, scenario: str) -> list[_FakeResult]:
         "latency_ms": 250.0,  # pass when value ≤ this
     }
 
-    results = []
+    results: list[_FakeResult] = []
     for metric, value in values.items():
         # latency: lower is better (pass when ≤ threshold)
-        passed = value <= thresholds[metric] if metric == "latency_ms" else value >= thresholds[metric]
-        results.append(_FakeResult(
-            metric=metric,
-            value=value,
-            baseline_value=baseline.get(metric),
-            passed=passed,
-            prompt_version=prompt_version,
-        ))
+        if metric == "latency_ms":
+            passed = value <= thresholds[metric]
+        else:
+            passed = value >= thresholds[metric]
+        results.append(
+            _FakeResult(
+                metric=metric,
+                value=value,
+                baseline_value=baseline.get(metric),
+                passed=passed,
+                prompt_version=prompt_version,
+            )
+        )
     return results
 
 
@@ -117,8 +122,7 @@ def _run_gate(prompt_version: str, scenario: str) -> bool:
             if r.baseline_value is not None and r.baseline_value > 0:
                 pct = (r.value - r.baseline_value) / r.baseline_value * 100
                 print(
-                    f"  {r.metric:<22} {r.value:.3f} "
-                    f"(baseline {r.baseline_value:.3f}, {pct:+.1f}%)"
+                    f"  {r.metric:<22} {r.value:.3f} (baseline {r.baseline_value:.3f}, {pct:+.1f}%)"
                 )
             else:
                 print(f"  {r.metric:<22} {r.value:.3f} (no baseline)")

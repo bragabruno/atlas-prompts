@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
-from io import BytesIO
 from unittest.mock import MagicMock, patch
+from urllib.request import Request
+
+import pytest
 
 from evals.drift.alerter import WebhookAlerter
 
@@ -13,9 +15,10 @@ _SUMMARY = "1/1 versions alerted"
 _EVALUATED_AT = "2026-06-10T02:00:00+00:00"
 
 
-def test_fire_logs_when_no_url_configured(caplog) -> None:
+def test_fire_logs_when_no_url_configured(caplog: pytest.LogCaptureFixture) -> None:
     alerter = WebhookAlerter(None)
     import logging
+
     with caplog.at_level(logging.WARNING):
         alerter.fire(_SUMMARY, _EVALUATED_AT, _VERSIONS)
     assert "no webhook configured" in caplog.text
@@ -25,11 +28,12 @@ def test_fire_posts_json_to_webhook() -> None:
     captured: list[bytes] = []
 
     mock_resp = MagicMock()
-    mock_resp.__enter__ = lambda s: s
+    mock_resp.__enter__ = MagicMock(return_value=mock_resp)
     mock_resp.__exit__ = MagicMock(return_value=False)
     mock_resp.status = 200
 
-    def fake_urlopen(req, timeout=10):
+    def fake_urlopen(req: Request, timeout: float = 10) -> MagicMock:
+        assert isinstance(req.data, bytes)
         captured.append(req.data)
         return mock_resp
 
@@ -44,7 +48,7 @@ def test_fire_posts_json_to_webhook() -> None:
     assert payload["versions"][0]["alerted"] is True
 
 
-def test_fire_swallows_http_error(caplog) -> None:
+def test_fire_swallows_http_error(caplog: pytest.LogCaptureFixture) -> None:
     import logging
 
     with patch("urllib.request.urlopen", side_effect=OSError("connection refused")):
@@ -63,11 +67,16 @@ def test_fire_includes_all_versions() -> None:
     captured: list[bytes] = []
 
     mock_resp = MagicMock()
-    mock_resp.__enter__ = lambda s: s
+    mock_resp.__enter__ = MagicMock(return_value=mock_resp)
     mock_resp.__exit__ = MagicMock(return_value=False)
     mock_resp.status = 200
 
-    with patch("urllib.request.urlopen", side_effect=lambda req, timeout=10: (captured.append(req.data), mock_resp)[1]):
+    def fake_urlopen(req: Request, timeout: float = 10) -> MagicMock:
+        assert isinstance(req.data, bytes)
+        captured.append(req.data)
+        return mock_resp
+
+    with patch("urllib.request.urlopen", side_effect=fake_urlopen):
         WebhookAlerter("https://hooks.example.com/atlas").fire(_SUMMARY, _EVALUATED_AT, versions)
 
     payload = json.loads(captured[0])

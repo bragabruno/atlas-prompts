@@ -49,6 +49,10 @@ select = ["E", "F", "I", "UP", "B"]
 typeCheckingMode = "strict"
 pythonVersion = "3.12"
 include = ["atlas_prompts", "evals", "eval_runs", "scripts", "tests", "gate.py"]
+# Resolve imports against the local venv (matches the other Python repos) so
+# typed deps like mlflow (ships py.typed) resolve instead of reading as missing.
+venvPath = "."
+venv = ".venv"
 
 # ---------------------------------------------------------------------------
 # Pytest

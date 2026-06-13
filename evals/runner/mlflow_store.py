@@ -106,25 +106,31 @@ class MlflowResultsStore:
         if self._tracking_uri:
             mlflow.set_tracking_uri(self._tracking_uri)
 
-        mlflow.set_experiment(self._experiment_name)
+        # mlflow types set_experiment's signature with an internal Unknown; the
+        # call itself is correct, so pin just this member access.
+        mlflow.set_experiment(self._experiment_name)  # pyright: ignore[reportUnknownMemberType]
 
         summary: EvalRunSummary = summarise_run(results)
         first = results[0]
 
         with mlflow.start_run(run_name=f"{first.prompt_version}@{first.dataset_version}"):
             # ---- params ------------------------------------------------
-            mlflow.log_params({
-                "prompt_version": summary.prompt_version,
-                "dataset_name": summary.dataset_name,
-                "dataset_version": summary.dataset_version,
-                "triggered_by": summary.triggered_by,
-            })
+            mlflow.log_params(
+                {
+                    "prompt_version": summary.prompt_version,
+                    "dataset_name": summary.dataset_name,
+                    "dataset_version": summary.dataset_version,
+                    "triggered_by": summary.triggered_by,
+                }
+            )
 
             # ---- tags --------------------------------------------------
-            mlflow.set_tags({
-                "run_id": summary.run_id,
-                "triggered_by": summary.triggered_by,
-            })
+            mlflow.set_tags(
+                {
+                    "run_id": summary.run_id,
+                    "triggered_by": summary.triggered_by,
+                }
+            )
 
             # ---- per-metric aggregates ---------------------------------
             metric_values: dict[str, list[float]] = defaultdict(list)
@@ -135,7 +141,9 @@ class MlflowResultsStore:
 
             for metric_name, values in metric_values.items():
                 mean_val = sum(values) / len(values)
-                pass_rate = sum(1 for p in metric_passes[metric_name] if p) / len(metric_passes[metric_name])
+                pass_rate = sum(1 for p in metric_passes[metric_name] if p) / len(
+                    metric_passes[metric_name]
+                )
                 mlflow.log_metric(metric_name, mean_val)
                 mlflow.log_metric(f"{metric_name}_pass_rate", pass_rate)
 

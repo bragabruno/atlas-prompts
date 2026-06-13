@@ -4,6 +4,8 @@ All tests use ``JsonlShadowSource`` with a tmp JSONL file and mock out
 MLflow so no server is required.
 """
 
+# Tests exercise the drift module's private `_shadow_to_metric_results` directly.
+# pyright: reportPrivateUsage=false
 from __future__ import annotations
 
 import json
@@ -12,49 +14,55 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from evals.drift.shadow_source import JsonlShadowSource, ShadowRecord
 from evals.drift.drift_job import (
     DriftReport,
-    VersionDrift,
     _shadow_to_metric_results,
     run_drift_eval,
 )
+from evals.drift.shadow_source import JsonlShadowSource, ShadowRecord
 from evals.runner.results_store import MetricResult
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 def _shadow_line(
     prompt_version: str = "regdoc-qa/1.0.0",
     latency_ms: float = 150.0,
     cost_usd: float = 0.001,
 ) -> str:
-    return json.dumps({
-        "prompt_version": prompt_version,
-        "input": "What does clause 4.2 require?",
-        "output": "Clause 4.2 requires ...",
-        "model": "claude-sonnet-4-6",
-        "latency_ms": latency_ms,
-        "cost_usd": cost_usd,
-    })
+    return json.dumps(
+        {
+            "prompt_version": prompt_version,
+            "input": "What does clause 4.2 require?",
+            "output": "Clause 4.2 requires ...",
+            "model": "claude-sonnet-4-6",
+            "latency_ms": latency_ms,
+            "cost_usd": cost_usd,
+        }
+    )
 
 
 @pytest.fixture()
 def shadow_file(tmp_path: Path) -> Path:
     p = tmp_path / "shadow.jsonl"
-    p.write_text("\n".join([
-        _shadow_line("regdoc-qa/1.0.0", latency_ms=150.0, cost_usd=0.001),
-        _shadow_line("regdoc-qa/1.0.0", latency_ms=160.0, cost_usd=0.0012),
-        _shadow_line("regdoc-qa/2.0.0", latency_ms=200.0, cost_usd=0.002),
-    ]))
+    p.write_text(
+        "\n".join(
+            [
+                _shadow_line("regdoc-qa/1.0.0", latency_ms=150.0, cost_usd=0.001),
+                _shadow_line("regdoc-qa/1.0.0", latency_ms=160.0, cost_usd=0.0012),
+                _shadow_line("regdoc-qa/2.0.0", latency_ms=200.0, cost_usd=0.002),
+            ]
+        )
+    )
     return p
 
 
 # ---------------------------------------------------------------------------
 # shadow_source
 # ---------------------------------------------------------------------------
+
 
 def test_jsonl_shadow_source_yields_records(shadow_file: Path) -> None:
     source = JsonlShadowSource(shadow_file)
@@ -72,6 +80,7 @@ def test_jsonl_shadow_source_respects_limit(shadow_file: Path) -> None:
 # ---------------------------------------------------------------------------
 # _shadow_to_metric_results
 # ---------------------------------------------------------------------------
+
 
 def test_shadow_to_metric_results_produces_latency_and_cost() -> None:
     records = [
@@ -93,6 +102,7 @@ def test_shadow_to_metric_results_produces_latency_and_cost() -> None:
 # ---------------------------------------------------------------------------
 # run_drift_eval
 # ---------------------------------------------------------------------------
+
 
 def _mock_mlflow() -> MagicMock:
     mock = MagicMock()
