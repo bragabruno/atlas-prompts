@@ -14,3 +14,4 @@ build/
 eval_runs/eval_results/
 src/
 .trunk/
+.vscode/
