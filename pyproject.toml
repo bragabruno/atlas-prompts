@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools==80.9.0", "wheel==0.45.1"]
+requires = ["setuptools==80.9.0", "wheel==0.46.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -21,15 +21,15 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest==9.0.3",
-    "ruff==0.11.13",
     "pyright==1.1.391",
 ]
 
 [project.scripts]
 lint-schemas = "atlas_prompts.lint:main"
+gate = "atlas_prompts.gate:main"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src"]
 include = ["atlas_prompts*"]
 
 # ---------------------------------------------------------------------------
@@ -48,7 +48,7 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pyright]
 typeCheckingMode = "strict"
 pythonVersion = "3.12"
-include = ["atlas_prompts", "evals", "eval_runs", "scripts", "tests", "gate.py"]
+include = ["src", "scripts", "tests"]
 # Resolve imports against the local venv (matches the other Python repos) so
 # typed deps like mlflow (ships py.typed) resolve instead of reading as missing.
 venvPath = "."
@@ -58,5 +58,4 @@ venv = ".venv"
 # Pytest
 # ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
-pythonpath = ["."]
 testpaths = ["tests"]

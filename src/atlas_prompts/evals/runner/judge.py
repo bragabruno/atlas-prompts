@@ -4,7 +4,7 @@
 Design
 ------
 ``LlmJudge`` wraps the existing ``GatewayClient`` Protocol (REG-8) and applies
-a versioned rubric (stored in ``evals/rubrics/``) to score a single
+a versioned rubric (stored in ``rubrics/``) to score a single
 candidate–question–reference triple.
 
 Key properties
@@ -13,7 +13,7 @@ Key properties
   recorded in every ``JudgeScoreResult`` for traceability.
 - **Temperature 0**: every call is made with ``temperature=0`` regardless of
   the caller's completion model.
-- **Versioned rubric**: the rubric YAML lives in ``evals/rubrics/`` and is
+- **Versioned rubric**: the rubric YAML lives in ``rubrics/`` and is
   referenced by filename (``judge_v1.yaml``).  Breaking rubric changes MUST
   bump the version so historical scores stay comparable.
 - **Multi-sample margin**: ``score_sample()`` calls the judge ``n_samples``
@@ -40,10 +40,10 @@ from typing import TYPE_CHECKING
 import yaml
 
 if TYPE_CHECKING:
-    from evals.runner.gateway_client import GatewayClient
+    from atlas_prompts.evals.runner.gateway_client import GatewayClient
 
-from evals.runner.gateway_client import ChatMessage, CompletionRequest
-from evals.runner.metrics import JudgeScoreResult
+from atlas_prompts.evals.runner.gateway_client import ChatMessage, CompletionRequest
+from atlas_prompts.evals.runner.metrics import JudgeScoreResult
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 # Rubric loading
 # ---------------------------------------------------------------------------
 
-_RUBRICS_ROOT = Path(__file__).parent.parent / "rubrics"
+_RUBRICS_ROOT = Path(__file__).resolve().parents[4] / "rubrics"
 
 
 def _rubric_path(version: str) -> Path:

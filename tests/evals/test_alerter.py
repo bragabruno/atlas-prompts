@@ -8,7 +8,7 @@ from urllib.request import Request
 
 import pytest
 
-from evals.drift.alerter import WebhookAlerter
+from atlas_prompts.evals.drift.alerter import WebhookAlerter
 
 _VERSIONS = [{"prompt_version": "v1.2", "n_samples": 100, "alerted": True, "run_id": "abc"}]
 _SUMMARY = "1/1 versions alerted"

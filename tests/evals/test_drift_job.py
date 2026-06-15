@@ -14,13 +14,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from evals.drift.drift_job import (
+from atlas_prompts.evals.drift.drift_job import (
     DriftReport,
     _shadow_to_metric_results,
     run_drift_eval,
 )
-from evals.drift.shadow_source import JsonlShadowSource, ShadowRecord
-from evals.runner.results_store import MetricResult
+from atlas_prompts.evals.drift.shadow_source import JsonlShadowSource, ShadowRecord
+from atlas_prompts.evals.runner.results_store import MetricResult
 
 # ---------------------------------------------------------------------------
 # Fixtures

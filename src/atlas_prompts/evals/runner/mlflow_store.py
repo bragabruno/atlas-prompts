@@ -5,8 +5,8 @@ so runs are comparable across prompt versions and dataset versions.
 
 Usage
 -----
-    from evals.runner.mlflow_store import MlflowResultsStore
-    from evals.runner.results_store import JsonlResultsStore
+    from atlas_prompts.evals.runner.mlflow_store import MlflowResultsStore
+    from atlas_prompts.evals.runner.results_store import JsonlResultsStore
 
     store = MlflowResultsStore(
         inner=JsonlResultsStore(),
@@ -34,7 +34,7 @@ import logging
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from evals.runner.results_store import (
+from atlas_prompts.evals.runner.results_store import (
     EvalRunSummary,
     MetricResult,
     ResultsStore,

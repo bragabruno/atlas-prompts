@@ -11,7 +11,9 @@ build/
 *.egg-info/
 .coverage
 .DS_Store
+# Generated eval-run outputs (REG-10/POL-3). Only the .gitkeep is tracked.
+# Path moved under src/ in the PyPA layout refactor (PR #12); the bare top-level
+# pattern is kept too in case a run writes to a legacy location.
+src/atlas_prompts/eval_runs/eval_results/*.jsonl
 eval_runs/eval_results/
-src/
-.trunk/
 .vscode/

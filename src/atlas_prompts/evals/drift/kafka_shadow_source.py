@@ -6,7 +6,7 @@ Import is guarded — if aiokafka is not installed, importing this module raises
 
 Usage
 -----
-    from evals.drift.kafka_shadow_source import KafkaShadowSource
+    from atlas_prompts.evals.drift.kafka_shadow_source import KafkaShadowSource
 
     source = KafkaShadowSource(
         bootstrap_servers="kafka.atlas.internal:9092",
@@ -26,7 +26,7 @@ import logging
 from collections.abc import Iterator
 from typing import Any
 
-from evals.drift.shadow_source import ShadowRecord
+from atlas_prompts.evals.drift.shadow_source import ShadowRecord
 
 
 def _deserialize(raw: bytes) -> Any:

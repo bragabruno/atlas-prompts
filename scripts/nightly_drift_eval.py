@@ -41,7 +41,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def _build_source(args: argparse.Namespace):  # type: ignore[return]
     if args.source:
-        from evals.drift.shadow_source import JsonlShadowSource
+        from atlas_prompts.evals.drift.shadow_source import JsonlShadowSource
 
         path = Path(args.source)
         if not path.is_file():
@@ -55,7 +55,7 @@ def _build_source(args: argparse.Namespace):  # type: ignore[return]
         log.error("ATLAS_KAFKA_BOOTSTRAP env var is required in live mode")
         sys.exit(1)
 
-    from evals.drift.kafka_shadow_source import KafkaShadowSource
+    from atlas_prompts.evals.drift.kafka_shadow_source import KafkaShadowSource
 
     return KafkaShadowSource(bootstrap_servers=bootstrap)
 
@@ -83,7 +83,7 @@ def main() -> int:
 
     source = _build_source(args)
 
-    from evals.drift.drift_job import run_drift_eval
+    from atlas_prompts.evals.drift.drift_job import run_drift_eval
 
     report = run_drift_eval(
         source=source,
@@ -96,7 +96,7 @@ def main() -> int:
     print(report.format_summary())
 
     if report.has_alerts:
-        from evals.drift.alerter import WebhookAlerter
+        from atlas_prompts.evals.drift.alerter import WebhookAlerter
 
         alerter = WebhookAlerter(os.environ.get("ATLAS_DRIFT_WEBHOOK_URL"))
         alerter.fire(

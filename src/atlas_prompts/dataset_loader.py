@@ -8,7 +8,7 @@ Usage
 
 Dataset layout (local)
 ----------------------
-    evals/datasets/<name>/<version>.jsonl
+    datasets/<name>/<version>.jsonl
 
 Each line is a JSON object that must validate against
 :class:`atlas_prompts.datasets.GoldenRecord`.
@@ -44,7 +44,7 @@ from atlas_prompts.datasets import GoldenRecord
 # Source abstraction — seam for Blob backend
 # ---------------------------------------------------------------------------
 
-_DATASETS_ROOT = Path(__file__).parent.parent / "evals" / "datasets"
+_DATASETS_ROOT = Path(__file__).resolve().parents[2] / "datasets"
 
 
 class DatasetSource(ABC):
@@ -66,13 +66,13 @@ class DatasetSource(ABC):
 
 
 class LocalFileSource(DatasetSource):
-    """Reads JSONL from ``evals/datasets/<name>/<version>.jsonl`` on the local filesystem.
+    """Reads JSONL from ``datasets/<name>/<version>.jsonl`` on the local filesystem.
 
     Parameters
     ----------
     root:
         Directory that contains the per-dataset sub-directories.
-        Defaults to ``<repo_root>/evals/datasets``.
+        Defaults to ``<repo_root>/datasets``.
     """
 
     def __init__(self, root: Path | None = None) -> None:
@@ -138,7 +138,7 @@ def load_dataset(
     Parameters
     ----------
     name:
-        Dataset name (directory name under ``evals/datasets/``).
+        Dataset name (directory name under ``datasets/``).
     version:
         Semver string, e.g. ``"1.0.0"``.
     source:

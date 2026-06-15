@@ -1,0 +1,32 @@
+# Pre-commit hooks for atlas-prompts (INF-1).
+# Hook revs are pinned to releases >=14 days old per atlas-docs/02 §2.
+# ruff rev matches the ruff pinned in .trunk/trunk.yaml (Trunk is the source of truth).
+minimum_pre_commit_version: "3.5.0"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0  # 2025-08-09
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13  # MUST stay in sync with .trunk/trunk.yaml ruff@0.11.13 (Trunk is the source of truth) — bump both together
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Prompt/agent schema lint (INF-1). Local hook — runs the repo's own linter
+  # so prompt and agent YAML schemas are validated before commit.
+  - repo: local
+    hooks:
+      - id: lint-schemas
+        name: lint prompt/agent schemas
+        entry: python scripts/lint_schemas.py
+        language: system
+        pass_filenames: false
+        files: ^(prompts|agents)/.*\.(ya?ml)$

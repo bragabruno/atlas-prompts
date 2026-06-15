@@ -11,14 +11,15 @@ Coverage requirements
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
 
-from evals.gate.comparator import MetricDiff, run_gate
-from evals.gate.gate_config import GateConfig, MetricSpec, default_gate_config
-from evals.runner.results_store import JsonlResultsStore, MetricResult, new_run_id
-from gate import main as gate_main
+from atlas_prompts.evals.gate.comparator import GateResult, MetricDiff, run_gate
+from atlas_prompts.evals.gate.gate_config import GateConfig, MetricSpec, default_gate_config
+from atlas_prompts.evals.runner.results_store import JsonlResultsStore, MetricResult, new_run_id
+from atlas_prompts.gate import main as gate_main
 
 # ---------------------------------------------------------------------------
 # Fixtures / helpers
@@ -541,6 +542,71 @@ class TestGateMainCli:
         assert "exact_match" in out
         assert "semantic_match" in out
         assert "citation_validity" in out
+
+
+# ---------------------------------------------------------------------------
+# GateResult JSON round-trip (REG-12 — consumed by the PR-comment poster)
+# ---------------------------------------------------------------------------
+
+
+class TestGateResultSerialisation:
+    def test_to_dict_round_trips(self) -> None:
+        bid = new_run_id()
+        cid = new_run_id()
+        result = run_gate(
+            candidate_results=_rows(cid, exact=0.3, semantic=0.9, citation=0.9),
+            baseline_results=_rows(bid, exact=0.9, semantic=0.9, citation=0.9),
+            candidate_run_id=cid,
+            baseline_run_id=bid,
+        )
+        restored = GateResult.from_dict(json.loads(json.dumps(result.to_dict())))
+        assert restored.passed == result.passed
+        assert restored.candidate_run_id == cid
+        assert restored.baseline_run_id == bid
+        assert [d.metric for d in restored.diffs] == [d.metric for d in result.diffs]
+        assert [d.status for d in restored.diffs] == [d.status for d in result.diffs]
+
+    def test_to_dict_includes_derived_fields(self) -> None:
+        cid = new_run_id()
+        result = run_gate(
+            candidate_results=_rows(cid, exact=0.9, semantic=0.9, citation=0.9),
+            baseline_results=None,
+            candidate_run_id=cid,
+        )
+        data = result.to_dict()
+        assert data["passed"] is True
+        assert data["baseline_run_id"] is None
+        assert all(d["status"] == "NO_BASELINE" for d in data["diffs"])
+
+
+class TestGateCliJsonOutput:
+    def _write_run(self, tmp_path: Path, run_id: str, rows: list[MetricResult]) -> None:
+        JsonlResultsStore(root=tmp_path).save_run(rows)
+
+    def test_json_written_on_pass_and_exit_unchanged(self, tmp_path: Path) -> None:
+        bid = new_run_id()
+        cid = new_run_id()
+        self._write_run(tmp_path, bid, _rows(bid, exact=0.8, semantic=0.8, citation=0.8))
+        self._write_run(tmp_path, cid, _rows(cid, exact=0.9, semantic=0.9, citation=0.9))
+        out = tmp_path / "diff.json"
+
+        rc = gate_main([cid, bid, "--store-root", str(tmp_path), "--json", str(out)])
+        assert rc == 0  # exit code preserved
+        data = json.loads(out.read_text(encoding="utf-8"))
+        assert data["passed"] is True
+        assert data["candidate_run_id"] == cid
+
+    def test_json_written_on_regression_and_exit_1(self, tmp_path: Path) -> None:
+        bid = new_run_id()
+        cid = new_run_id()
+        self._write_run(tmp_path, bid, _rows(bid, exact=0.9, semantic=0.9, citation=0.9))
+        self._write_run(tmp_path, cid, _rows(cid, exact=0.3, semantic=0.9, citation=0.9))
+        out = tmp_path / "diff.json"
+
+        rc = gate_main([cid, bid, "--store-root", str(tmp_path), "--json", str(out)])
+        assert rc == 1  # red check preserved even though the comment JSON is written
+        data = json.loads(out.read_text(encoding="utf-8"))
+        assert data["passed"] is False
 
 
 # ---------------------------------------------------------------------------

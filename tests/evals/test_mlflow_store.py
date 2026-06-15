@@ -9,8 +9,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from evals.runner.mlflow_store import MlflowResultsStore
-from evals.runner.results_store import MetricResult
+from atlas_prompts.evals.runner.mlflow_store import MlflowResultsStore
+from atlas_prompts.evals.runner.results_store import MetricResult
 
 # ---------------------------------------------------------------------------
 # Fixtures

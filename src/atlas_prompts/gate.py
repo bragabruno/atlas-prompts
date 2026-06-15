@@ -9,6 +9,8 @@ Usage
 
     python gate.py <candidate_run_id> --no-baseline   # first-run (always passes)
 
+    python gate.py <candidate_run_id> <baseline_run_id> --json diff.json
+
 Arguments
 ---------
 candidate_run_id
@@ -24,6 +26,9 @@ Options
 --no-baseline
     Skip baseline comparison — gate always passes.  Use only for the first run
     of a prompt with no prior production record.
+--json PATH
+    Also write the machine-readable comparison (``GateResult.to_dict``) to PATH.
+    Consumed by the PR-comment poster (REG-12).  Does not affect exit codes.
 
 Exit codes
 ----------
@@ -35,12 +40,13 @@ Exit codes
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
-from evals.gate.comparator import run_gate
-from evals.gate.gate_config import default_gate_config
-from evals.runner.results_store import JsonlResultsStore
+from atlas_prompts.evals.gate.comparator import run_gate
+from atlas_prompts.evals.gate.gate_config import default_gate_config
+from atlas_prompts.evals.runner.results_store import JsonlResultsStore
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -64,6 +70,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--store-root",
         default=None,
         help="Override the results store root directory.",
+    )
+    parser.add_argument(
+        "--json",
+        dest="json_path",
+        default=None,
+        help="Write the machine-readable comparison to this path (for the PR-comment poster).",
     )
     return parser.parse_args(argv)
 
@@ -110,6 +122,11 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     print(result.format_table())
+
+    if args.json_path:
+        json_path = Path(args.json_path)
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(json.dumps(result.to_dict(), indent=2) + "\n", encoding="utf-8")
 
     return 0 if result.passed else 1
 

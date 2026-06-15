@@ -30,10 +30,10 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from evals.drift.shadow_source import ShadowRecord, ShadowSource
-from evals.gate.comparator import GateResult, run_gate
-from evals.runner.mlflow_store import MlflowResultsStore
-from evals.runner.results_store import JsonlResultsStore, MetricResult
+from atlas_prompts.evals.drift.shadow_source import ShadowRecord, ShadowSource
+from atlas_prompts.evals.gate.comparator import GateResult, run_gate
+from atlas_prompts.evals.runner.mlflow_store import MlflowResultsStore
+from atlas_prompts.evals.runner.results_store import JsonlResultsStore, MetricResult
 
 if TYPE_CHECKING:
     pass

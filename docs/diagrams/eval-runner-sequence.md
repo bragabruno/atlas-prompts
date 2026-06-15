@@ -10,9 +10,9 @@ sequenceDiagram
     participant M as "MetricsEngine"
     participant DB as "eval_runs/eval_results"
     participant ML as "MLflow"
-    participant GT as "gate.py"
+    participant GT as "atlas_prompts.gate"
 
-    R->>B: fetch golden-set data (manifest from evals/datasets/)
+    R->>B: fetch golden-set data (manifest from datasets/)
     B-->>R: golden cases (input + expected output)
 
     loop for each golden case

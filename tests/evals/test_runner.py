@@ -14,9 +14,9 @@ from pathlib import Path
 import pytest
 
 from atlas_prompts.dataset_loader import LocalFileSource
-from evals.runner.gateway_client import FakeGatewayClient, default_embedding_fn
-from evals.runner.results_store import JsonlResultsStore, MetricResult
-from evals.runner.runner import EvalRunner, RunConfig
+from atlas_prompts.evals.runner.gateway_client import FakeGatewayClient, default_embedding_fn
+from atlas_prompts.evals.runner.results_store import JsonlResultsStore, MetricResult
+from atlas_prompts.evals.runner.runner import EvalRunner, RunConfig
 
 # ---------------------------------------------------------------------------
 # Dataset root for the committed seed
