@@ -14,7 +14,7 @@ dependencies = [
     "sqlalchemy==2.0.50",
     "alembic==1.18.4",
     "psycopg[binary]==3.3.4",
-    "mlflow==3.12.0",               # REG-10 — MLflow tracking;    released 2026-05-05 (>14d)
+    "mlflow==3.13.0rc0",               # REG-10 — MLflow tracking;    released 2026-05-05 (>14d)
     "aiokafka==0.14.0",             # POL-3 — Kafka shadow source;  released 2026-04-29 (>14d)
 ]
 
